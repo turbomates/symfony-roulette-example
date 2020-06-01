@@ -1,0 +1,51 @@
+services:
+  # default configuration for services in *this* file
+  _defaults:
+    autowire: true      # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+    bind:
+#      Symfony\Component\Messenger\Transport\TransportInterface $messageBus: '@messenger.transport.event.sync'
+
+  Roulette\:
+    resource: '../src/Roulette/*'
+    exclude: '../src/Roulette/{DependencyInjection,Entity,Lib,Migrations,Tests,Kernel.php}'
+  Player\:
+    resource: '../src/Player/*'
+    exclude: '../src/Player/{DependencyInjection,Entity,Lib,Migrations,Tests,Kernel.php}'
+  Identity\:
+    resource: '../src/Identity/*'
+    exclude: '../src/Identity/{DependencyInjection,Entity,Lib,Migrations,Tests,Kernel.php}'
+
+  Roulette\Api\Controller\:
+    resource: '../src/Roulette/Api/Controller/*Controller.php'
+    tags: ['controller.service_arguments']
+
+  Player\Api\Controller\:
+    resource: '../src/Player/Api/Controller/*Controller.php'
+    tags: ['controller.service_arguments']
+
+  Lib\HttpFoundation\JsonValueResolver:
+    arguments:
+      - '@serializer'
+    tags:
+      - { name: controller.argument_value_resolver, priority: 50 }
+
+  Lib\HttpFoundation\ResponseJsonListener:
+    arguments:
+      - '@serializer'
+    tags:
+      - {name: kernel.event_subscriber}
+
+  Lib\Messenger\DoctrineMiddleware:
+    arguments:
+      - '@messenger.transport.doctrine'
+      - '@doctrine'
+
+  Lib\QueryObject\QueryExecutor:
+    arguments:
+      - '@doctrine.orm.entity_manager'
+
+  Identity\Infrastructure\Security\UserProvider:
+    arguments:
+      - '@doctrine.orm.entity_manager'
+  Identity\Infrastructure\Security\Authenticator:

@@ -1,0 +1,21 @@
+security:
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+        # used to reload user from session & other features (e.g. switch_user)
+        identity_user_provider:
+            id: Identity\Infrastructure\Security\UserProvider
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            anonymous: lazy
+            provider: identity_user_provider
+            guard:
+                authenticators:
+                    - Identity\Infrastructure\Security\Authenticator
+
+    access_control:
+        - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1/player/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/v1/roulette/*, roles: ROLE_PLAYER }
